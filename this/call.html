@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        Function.prototype.mycall =function(thisarg,...agr){
+            thisarg.f =this
+            const res = thisarg.f(...agr)
+            delete thisarg.f
+            return res
+        }
+     /* function getList(a,b) {
+        console.log(a+b)
+        console.log(this)
+      }
+      const person = {
+        name: '张三',
+        age: 18,
+      }
+      getList.call(person,1,2)
+      getList.apply(person,[3,2])
+      const ac = getList.bind(person,1,2)
+      ac()*/
+      function getList(a,b) {
+        console.log(a+b)
+        console.log(this)
+        return a+b
+      }
+      const perosn = {
+        name: '张三',
+        age: 18,
+      }
+      const a = function() {
+        console.log(this.name)
+      }
+      perosn.f=a
+      perosn.f()
+    console.log(getList.mycall(perosn,1,2))
+    </script>
+</body>
+</html>
