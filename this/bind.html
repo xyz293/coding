@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        Function.prototype.mybind =function(thisarg,...args){
+            return (...newArgs)=>{
+             return this.call(thisarg,...args,...newArgs)
+            }
+        }
+        const person = {
+            name: '张三',
+            age: 18,
+          }
+          function getList(a,b) {
+            console.log(a+b)
+            console.log(this)
+            return a+b
+          }
+          const ac = getList.mybind(person,1,2)
+         console.log(ac())
+    </script>
+</body>
+</html>

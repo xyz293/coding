@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        function perosn(name,age)
+        {
+            this.name = name
+            this.age = age
+        }
+        perosn.prototype.say = function() {
+            console.log(this.name)
+        }
+        const p1 = new perosn('张三',18)
+        console.log(p1.__proto__)
+        console.log(Function.prototype)
+        console.log(perosn.prototype)
+    </script>
+</body>
+</html>

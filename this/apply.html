@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        Function.prototype.myapply =function(thisarg,args){
+             const key  = Symbol('key')
+             thisarg[key] =this
+             const res = thisarg[key](...args)
+             delete thisarg[key]
+             return res
+        }
+        const person = {
+            name: '张三',
+            age: 18,
+          }
+          function getList(a,b) {
+            console.log(a+b)
+            console.log(this)
+            return a+b
+          }
+          console.log(getList.myapply(person,[1,2]))
+    </script>
+</body>
+</html>
