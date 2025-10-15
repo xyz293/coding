@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+  <script>
+    class myproisme{
+        state = 'pending'
+        reason = ''
+        #header =[]
+        constructor(func){
+
+            const resolve = (value) => {
+               if(this.state==='pending'){
+                this.state = 'fulfilled'
+                this.reason = value
+                queueMicrotask(()=>{
+                  this.#header.forEach(item=>{
+                 const x= item.onfulfilled(this.reason)
+                  item.resolve(x)
+                })
+               })
+               }
+            }
+            const reject = (value) => {
+               if(this.state==='pending'){
+                this.state = 'rejected'
+                this.reason = value
+                queueMicrotask(()=>{
+                  this.#header.forEach(item=>{
+                 const x= item.onrejected(this.reason)
+                  item.reject(x)
+                })
+               })
+               }
+            }
+            func(resolve,reject)
+        }
+        then(onfulfilled){
+           const p2 =new myproisme((resolve,reject)=>{
+             if(this.state==='fulfilled'&& typeof onfulfilled==='function'){
+               queueMicrotask(()=>{
+             const x = onfulfilled(this.reason);
+             resolve(x);
+               })
+
+            }
+            if(this.state==='pending'){
+                this.#header.push({
+                  onfulfilled,
+                  resolve,
+                  reject,
+                })
+            }
+           })
+           return p2
+        }
+    }
+    console.log(1)
+    const p = new myproisme((resolve,reject)=>{
+      resolve(2)
+    })
+    p.then((res)=>{
+        return res+1
+    }).then(res1=>{
+        console.log(res1)
+    })
+    console.log(2)
+  </script>
+</body>
+</html>

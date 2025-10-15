@@ -7,9 +7,10 @@
 <body>
     <script>
         Function.prototype.mycall =function(thisarg,...agr){
-            thisarg.f =this
-            const res = thisarg.f(...agr)
-            delete thisarg.f
+          const key = Symbol('key')
+            thisarg[key] =this
+            const res = thisarg[key](...agr)
+            delete thisarg[key]
             return res
         }
      /* function getList(a,b) {
@@ -43,6 +44,9 @@
       perosn.f=a
       perosn.f()
     console.log(getList.mycall(perosn,1,2))
+    const ac = [1,2,3,4,5]
+    const sum =ac.reduce((acc,cur)=>acc+cur)
+    console.log(sum)
     </script>
 </body>
 </html>
