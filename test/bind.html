@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        Function.prototype.mybind =function(thisarg,...arg){
+             return (...a)=>{
+                 this.call(thisarg,...arg,...a)
+             }
+        }
+      const perons ={
+        name:'json',
+        age:10
+      }
+      function get(a,b,c){
+        console.log(this.name)
+        console.log(a,b,c)
+      }
+      const bindget = get.mybind(perons)
+      bindget(1,2,3)
+    </script>
+</body>
+</html>

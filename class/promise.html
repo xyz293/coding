@@ -19,8 +19,13 @@
                 this.reason = value
                 queueMicrotask(()=>{
                   this.#header.forEach(item=>{
-                 const x= item.onfulfilled(this.reason)
+                 try{
+                  const x= item.onfulfilled(this.reason)
                   item.resolve(x)
+                 }
+                 catch(err){
+                  item.reject(err)
+                 }
                 })
                })
                }
@@ -31,8 +36,13 @@
                 this.reason = value
                 queueMicrotask(()=>{
                   this.#header.forEach(item=>{
-                 const x= item.onrejected(this.reason)
+                 try{
+                  const x= item.onrejected(this.reason)
                   item.reject(x)
+                 }
+                 catch(err){
+                  item.reject(err)
+                 }
                 })
                })
                }
@@ -67,6 +77,9 @@
         return res+1
     }).then(res1=>{
         console.log(res1)
+        return 2
+    }).then(res2=>{
+        console.log(res2)
     })
     console.log(2)
   </script>
