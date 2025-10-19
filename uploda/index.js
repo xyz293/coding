@@ -4,7 +4,25 @@ const port = 3000;
 const path =require('path');
 const fs =require('fs');
 const multiparty = require('multiparty');   //进行解析multipart/form-data格式的请求体
-const uploadDir =path.resolve(__dirname,'file');
+const uploadDir =path.resolve(__dirname,'file');   //返回一个路径
+app.get('/verify',(req,res)=>{
+    const {filehash} =req.query
+    const chenkfile =path.resolve(uploadDir,filehash);
+    if(fs.existsSync(chenkfile)){
+     const uploadedChunks = fs.readdirSync(chunkDir);
+     res.json({
+      message:'文件存在',
+      code:200,
+      data:uploadedChunks
+     })
+    }
+    else {
+      res.json({
+        message:'文件不存在',
+        code:404
+      })
+    }
+})
 app.post('/upload',(req,res)=>{
   const form =new multiparty.Form();
   form.parse(req,(err,fiedls,file)=>{
