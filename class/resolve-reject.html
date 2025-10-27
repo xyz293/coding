@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+  <script>
+   Promise.myreject =function (val){
+    return new Promise((reslove,reject)=>{
+        reject(val)
+    })
+   }
+   Promise.myreject(1).then((val)=>{
+    console.log(val)
+   }).catch((err)=>{
+    console.log(err)
+   })
+   Promise.myreject=function (val){
+    return new Promise((reslove,reject)=>{
+        reject(val)
+    })
+   }
+   Promise.myreject(1).then((val)=>{
+    console.log(val)
+   }).catch((err)=>{
+    console.log(err)
+   })
+  </script>
+</body>
+</html>

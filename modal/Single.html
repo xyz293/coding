@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>单例模式</h2>
+    <script>
+     class Single{
+        static #instance
+        age
+        name
+         constructor(){
+            this.age =10
+            this.name ='json'
+         }
+        static getInstance(){
+            if(!this.#instance){
+                this.#instance =new Single()
+            }
+            return this.#instance
+        }
+        add(){
+            this.age +=1
+        }
+     }
+     const single1 = Single.getInstance()
+     const single2 = Single.getInstance()
+     console.log(single1 , single2)
+     single1.add()
+      console.log(single1 , single2)
+    </script>
+</body>
+</html>

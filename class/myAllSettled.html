@@ -30,5 +30,13 @@
             }
         })
     }
+    const p1 = Promise.myAllSettled([
+        Promise.resolve(1),
+        Promise.resolve(2),
+        Promise.reject('error'),
+    ])
+        p1.then((val)=>{
+            console.log(val)
+        })
   </script>
 </body>
