@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script >
+   Promise.myrace =function(promises){
+      return new Promise((resolve,reject)=>{
+              for(let i=0;i<promises.length;i++){
+                  promises[i].then(res=>{
+                      resolve(res)
+                      return
+                  }).catch(err=>{
+                      reject(err)
+                      return
+                  })
+              }
+      })
+   }
+   Promise.myresolve =function(n){
+    return new Promise((resolve,reject)=>{
+        resolve(n)
+    })
+   }
+   Promise.myreject =function(n){
+    return new Promise((resolve,reject)=>{
+        reject(n)
+    })
+   }
+   Promise.myall =function(promise){
+    return new Promise((resolve,reject)=>{
+       let arr =[]
+       promise.forEach((item,index)=>{
+        item.then(res=>{
+            arr[index] =res
+            if(index==promise.length-1){
+                resolve(arr)
+            }
+        }).catch(reject)
+       })
+    })
+   }
+   Promise.myallsettled =function(promise){
+    return new Promise((resolve,reject)=>{
+       let arr =[]
+       promise.forEach((item,index)=>{
+        item.then(res=>{
+            arr[index] ={
+                status:'fulfilled',
+                value:res
+            }
+            if(index==promise.length-1){
+                resolve(arr)
+            }
+        }).catch(err=>{
+            arr[index] ={
+                status:'rejected',
+                reason:err
+            }
+            if(index==promise.length-1){
+                resolve(arr)
+            }
+        })
+       })
+    })
+   }
+     Promise.myany =function(promise){
+        return new Promise((resolve,reject)=>{
+            let errs= []
+           for(let i=0;i<promise.length;i++){
+               promise[i].then((res)=>{
+                   resolve(res)
+                       return
+               }).catch((err)=>{
+                   errs.push(err)
+                   if(err.length==promise.length){
+                       reject(err)
+                   }
+               })
+           }
+        })
+     }
+    </script>
+</body>
+</html>

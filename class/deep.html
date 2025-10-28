@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+    </head>
+    <body>
+        <script >
+          function deep (obj){
+            let dpobj ={}
+              for(let key in obj){
+                  
+                  if(obj[key] instanceof Object){
+                   dpobj[key]= deep(obj[key])
+                  }
+                 else {
+                     dpobj[key] = obj[key]
+                 }
+              }
+              return dpobj
+          }
+        </script>
+    </body>
+</html>
