@@ -8,8 +8,12 @@
     <body>
         <script >
            let arr =[1,2,3,4,4,6,2,8,9]
-           arrs =[...new Set(arr)]
-           
+           let arrs= []
+           arr.forEach((item)=>{
+             if(!arrs.includes(item)){
+                arrs.push(item)
+             }
+           })
         </script>
     </body>
 </html>

@@ -20,7 +20,7 @@
                      item.then((val)=>{
                         res[index] = val
                         count++
-                        if(count===promise.length){
+                        if(index===promise.length-1){
                             reslove(res)
                         }
                      }).catch((err)=>{
