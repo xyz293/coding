@@ -1,3 +1,12 @@
+class Cancle{
+    constructor(){
+        this.signal=false
+    }
+    signal
+    changeSignal(){
+        this.signal=true
+    }
+}
 class axios{
     constructor(config){
         this.default ={...config}
@@ -16,6 +25,8 @@ class axios{
             }
         }
      }
+     this.queue=[]
+     this.lock=false
     }
     reuqest(config){
         const finalConfig={...this.default,...config}
@@ -48,6 +59,9 @@ class axios{
                         reject(err)
                     }
                 })
+                if(config.signal===true){
+                   xhr.abort()
+                }
             if(config.method=='get'){
                 xhr.send()
             }
@@ -63,8 +77,17 @@ class axios{
     }
 }
 const myaxios =new axios({baseURL:'https://api.example.com',timeout:1000})
+const map =new Map()
 myaxios.interceptors.request.use((config)=>{
     const token =localStorage.getItem('token')
+    const key =`${config.method}${config.url}`
+    const cancelToken=new Cancle()
+    config.signal=cancelToken.signal
+    if(map.has(key)){
+        cancelToken.changeSignal()
+        map.delete(key)
+    }
+    map.set(key,cancelToken)
     if(token){
         config.headers.Authorization=`Bearer ${token}`
     }
