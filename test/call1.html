@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+    Function.prototype.mycall =function(thisarg,...arg){
+       const key =Symbol()
+       thisarg[key] =this
+       thisarg[key](...arg)
+       delete thisarg[key]
+    }
+    const perons ={
+        name:'json',
+        age:10
+    }
+    function get(a,b,c){
+        console.log(this.name)
+        console.log(a,b,c)
+    }
+    Function.prototype.myally =function(thisarg,arg){
+        const key =Symbol()
+        thisarg[key] =this
+        thisarg[key](...arg)
+        delete thisarg[key]
+    }
+    Function.prototype.mybind =function(thisarg,...arg){
+           return (...newArg)=>{
+               this.call(thisarg,...arg,...newArg)
+           }
+    }
+    get.mycall(perons,1,2,3)
+    get.myally(perons,[1,2,3])
+    const bindGet = get.mybind(perons,1,2)
+    bindGet(3)
+    Promise.myresolve =function(value){
+        return new Promise((resolve,reject)=>{
+            resolve(value)
+        })
+    }
+    Promise.myreject =function(value){
+        return new Promise((resolve,reject)=>{
+            reject(value)
+        })
+    }
+    Promise.myrace =function(promises){
+        return new Promise((resolve,reject)=>{
+            promises.forEach(promise=>{
+               promise.then(res=>{
+                 resolve(res)
+               }).catch(err=>{
+                 reject(err)
+               })
+            })
+        })
+    }
+    Promise.myall =function(promises){
+        return new Promise((resolve,reject)=>{
+            const ress =[]
+           promises.forEach((item,index)=>{
+            item.then(res=>{
+                ress.push(res)
+                if(res.length===promises.length){
+                    resolve(ress)
+                }
+            }).catch(err=>{
+                reject(err)
+            })
+           })
+        })
+    }
+    Promise.myallsettled =function(promises){
+            return new Promise((resolve,reject)=>{
+                const res =[]
+                promises.forEach((item,index)=>{
+                    item.then(res=>{
+                        res.push({
+                            status:'fulfilled',
+                            value:res
+                        })
+                        if(res.length===promises.length){
+                            resolve(res)
+                        }
+                    }).catch(err=>{
+                        res.push({
+                            status:'rejected',
+                            value:err
+                        })
+                        if(res.length===promises.length){
+                            resolve(res)
+                        }
+                    })
+                })
+            })
+    }
+    Promise.myany =function(promises){
+        return new Promise((resolve,reject)=>{
+            let res =[]
+           promises.forEach((item,index)=>{
+            item.then(res=>{
+                resolve(res)
+            }).catch(err=>{
+                if(index===promises.length-1){
+                    reject(res)
+                }
+                res.push(err)
+            })
+           })
+        })
+    }
+    const peron ={
+        name:'json',
+        age:10,
+        body:{
+            height:100,
+            weight:100
+        }
+    }
+    function deepclone(value){
+         
+                let obj ={}
+                for(let index in value){
+                    if(value[index] instanceof Object){
+                        obj[index] =deepclone(value[index])
+                    }
+                    else {
+                        obj[index] =value[index]
+                    }
+                }
+            return obj
+    }
+    function filtter (value){
+        let res =[]
+        value.forEach(item=>{
+            if(!res.includes(item)){
+                res.push(item)
+            }
+        })
+        return res
+    }
+    function fangdou(){
+        let timer =null
+        if(timer){
+            clearTimeout(timer)
+        }
+        else {
+            timer =setTimeout(()=>{
+                console.log('hello')
+            },1000)
+        }
+    }
+    function jieliu(wait){
+      let time  =0
+      return ()=>{
+        let now =new Date().getTime()
+        if(now-time>=wait){
+            console.log('hello')
+            time =now
+        }
+      }
+    }
+    </script>
+</body>
+</html>
