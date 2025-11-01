@@ -11,7 +11,7 @@ class axios{
         response:{
              headler:[],
             use:({ful,reject})=>{
-                this.inter.request.headler.push({ful,reject})
+                this.inter.response.headler.push({ful,reject})
             }
         }
       }
@@ -27,6 +27,9 @@ class axios{
              try{
                   const xhr =new XMLHttpRequest()
             xhr.open(finalconfig.method,finalconfig.url)
+            xhr.ontimeout = () => {
+    reject(new Error(`Timeout of ${finalconfig.timeout}ms exceeded`));
+};
             xhr.onload(()=>{
                   try{
                         const response={
@@ -34,7 +37,12 @@ class axios{
                         status:xhr.status,
                         statusText:xhr.statusText
                     }
-                    resolve(response)
+                    if(response.status>=200&&response.status<300){
+                        resolve(response)
+                    }
+                    else {
+                        reject(response)
+                    }
                     }
                     catch(err){
                         reject(err)
@@ -54,7 +62,7 @@ class axios{
        })
 
         this.inter.response.headler.forEach((item)=>{
-        promiseChain =promiseChain.then(item)
+        promiseChain =promiseChain.then(item.ful,item.reject)
        })
 
        return promiseChain

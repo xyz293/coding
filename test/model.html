@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+         //单例模式  工厂模式 订阅发布模式 装饰器模式
+       class SINGLE{
+    static instance
+    age
+    name
+    constructor(age,name){
+        this.age =age
+        this.name =name
+    }
+    static getInstance(){
+        if(!this.instance){
+            this.instance =new SINGLE(10,'z1772')
+        }
+        return this.instance
+    }
+}
+     const s1= SINGLE.getInstance()
+     const s2 = SINGLE.getInstance()
+     console.log(s1.age)
+     console.log(s2.name)
+    class eventbus{
+        constructor(){
+            this.event ={}
+        }
+        on(name,callback){
+          if(callback instanceof Function){
+            this.event[name]= callback
+          }
+        }
+        emit(name,...args){
+            if(this.event[name]){
+                this.event[name](...args)
+            }
+        }
+        off(name){
+            if(this.event[name]){
+                delete this.event[name]
+            }
+        }
+    }
+    const event = new eventbus()
+    event.on('change',(name,age)=>{
+        console.log(name,age)
+    })
+    event.emit('change','z1772',10)
+    class peron{
+        constructor(name,age){
+            this.name =name
+            this.age =age
+        }
+    }
+    class school{
+        constructor(name,address){
+            this.name =name
+            this.address =address
+        }
+    }
+    function factory(type,name,age){
+        switch(type){
+            case 'peron':
+                return new peron(name,age)
+            case 'school':
+                return new school(name,age)
+        }
+    }
+    const p1 =factory('peron','z1772',10)
+    console.log(p1.name)
+     function corefn(){
+          console.log('hello')
+     }
+     function addlog(fn){
+        return ()=>{
+          console.log('log')
+            fn()
+            console.log('log end')
+        }
+     }
+     const corefnlog =addlog(corefn)
+     corefnlog()
+     class sub{
+         constructor(){
+            this.event =[]
+        }
+        add(callback){
+             this.event.push(callback)
+        }
+        notify(data){
+            this.event.forEach(item=>{
+                 item(data)
+            })
+        }
+     }
+     const sub1 =new sub()
+     sub1.add((data)=>{
+        console.log(data)
+     })
+     sub1.notify('hello')
+    </script>
+</body>
+</html>

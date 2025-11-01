@@ -117,21 +117,32 @@
         body:{
             height:100,
             weight:100
-        }
+        },
+        a:[1,2,3]
     }
     function deepclone(value){
-         
+         if (typeof value !== 'object' || value === null) {
+    return value;
+  }
                 let obj ={}
                 for(let index in value){
                     if(value[index] instanceof Object){
+                    
+                        obj[index] ={}
                         obj[index] =deepclone(value[index])
-                    }
-                    else {
+                }
+                else if(value[index] instanceof Array){
+                    obj[index] =[]
+                    obj[index] =deepclone(value[index])
+                }
+                   else {
                         obj[index] =value[index]
                     }
-                }
+            }
             return obj
     }
+    const a =deepclone(peron)
+    console.log(a)
     function filtter (value){
         let res =[]
         value.forEach(item=>{
@@ -162,6 +173,11 @@
         }
       }
     }
+    function app (a){
+        this.a =a
+    }
+    const as =new app(10)
+    console.log(as.a)
     </script>
 </body>
 </html>
