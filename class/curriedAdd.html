@@ -8,24 +8,23 @@
 <body>
     <script >
        function curr (fn){
-          return (...args)=>{
-            if(args.length>=fn.length){
-              return fn(...args)
-            }
-            return (...args2)=>{
-              return curr(fn)(...args,...args2)
-            }
+          const len =fn.length
+          return function curred(...arg){
+               if(arg.length>=len){
+                   return fn(...arg)
+               }
+               else {
+                   return (...args)=>{
+                       return curred(...arg,...args)
+                   }
+                  }
           }
+       } 
+       function sum(...args){
+        return args.reduce((acc,cur)=>{
+          return acc+cur
+        },0)
        }
-       function add (...args){
-        let sum =0
-        args.forEach(item=>{
-          sum+=item
-        })
-        return sum
-      }
-      const addCurr = curr(add)
-      console.log(addCurr(1)(2)(3))
     </script>
 </body>
 </html>

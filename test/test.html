@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+      Function.prototype.mycall =function(thisarg,...arg){
+         const key =Symbol()
+         thisarg[key] =this
+          thisarg[key](...arg)
+         delete thisarg[key]
+      }
+       Function.prototype.myapply =function(thisarg,arg){
+         const key =Symbol()
+         thisarg[key] =this
+      thisarg[key](...arg)
+         delete thisarg[key]
+      }
+       Function.prototype.mybind =function(thisarg,...arg){
+          return (...next)=>{
+            this.call(thisarg,...arg,...next)
+          }
+      }
+      Promise.myres =function(value){
+        return new Promise((resolve,reject)=>{
+            resolve(value)
+        })
+      }
+        Promise.myreh =function(value){
+        return new Promise((resolve,reject)=>{
+            reject(value)
+        })
+      }
+        Promise.myall =function(value){
+        return new Promise((resolve,reject)=>{
+            let arr =[]
+            value.forEah((item,index)=>{
+                item.then(res=>{
+                    arr.push(res)
+                    if(index === value.length-1){
+                        resolve(arr)
+                    }
+                }).catch(e=>{
+                    reject(e)
+                })
+            })
+        })
+      }
+       Promise.myallsele =function(value){
+        return new Promise((resolve,reject)=>{
+            let arr =[]
+            value.forEah((item,index)=>{
+                item.then(res=>{
+                    arr.push(res)
+                    if(index === value.length-1){
+                        resolve(arr)
+                    }
+                }).catch(e=>{
+                   arr.push(e)
+                    if(index === value.length-1){
+                        reject(arr)
+                    }
+                })
+            })
+        })
+      }
+      Promise.myrace =function(value){
+          return new Promise((resolve,reject)=>{
+            value.forEach((item)=>{
+                item.then(res=>{
+                    resolve(res)
+                }).catch(e=>{
+                    reject(e)
+                })
+            })
+          })
+      }
+      function ddepclone(value){
+             if(typeof value=='object'){
+                return value
+             }
+             let obj ={}
+             for(let index in value){
+                if(avlue[index] instanceof Object){
+                    obj[index]={}
+                     obj[index] =ddepclone(value[index])
+                }
+                else if(value[index] instanceof Array){
+                     obj[index] =[]
+                     obj[index] =ddepclone(value[index])
+                }
+                else {
+                    obj[index]=value[index]
+                }
+             }
+             return obj
+      }
+      function fillter(arr){
+           let arrs =[]
+           arr.forEach((item)=>{
+            if(!arrs.includes(item)){
+                 arrs.push(item)
+            }
+           })
+           return arrs
+      }
+      function flat (arr){
+           return arr.reduce((acc,cur)=>{
+                if(cur instanceof Array){
+                      acc=acc.concat(flat(cur))
+                }
+                else {
+                    acc.push(cur)
+                }
+                return acc
+            },[])
+      }
+        function flat1 (arr){
+            let arrs =[]
+            arr.forEach((item)=>{
+                if(item instanceof Array){
+                     arrs=arrs.concat(flat1(item))
+                }
+                else {
+                     arrs.push(item)
+                }
+            })
+            return arrs
+      }
+      function curr(fn){
+          let len =fn.length
+          return function curred(...arg){
+                if(arg.length>=len){
+                    return fn(...arg)
+                }
+                else {
+                    return (...next)=>{
+                        return curred(...arg,...next)
+                    }
+                }
+          }
+      }
+      
+
+    </script>
+</body>
+</html>

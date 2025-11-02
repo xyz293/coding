@@ -4,13 +4,13 @@ class axios{
       this.inter={
         request:{
             headler:[],
-            use:({ful,reject})=>{
-                this.inter.request.headler.push({ful,reject})
+            use:(fulfilled,rejected)=>{
+                this.inter.request.headler.push({fulfilled,rejected})
             }
         },
         response:{
              headler:[],
-            use:({ful,reject})=>{
+            use:(ful,reject)=>{
                 this.inter.response.headler.push({ful,reject})
             }
         }
