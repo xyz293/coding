@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+     Function.ptototype.mycall =function(thisarg,...agr){
+          const key =Symbol()
+          thisarg[key]= this
+          const res =thisarg[key](...agr)
+          delete thisarg[key]
+          return res
+     }
+     Function.ptototype.myapply =function(thisarg,agr){
+          const key =Symbol()
+          thisarg[key]= this
+          const res =thisarg[key](...agr)
+          delete thisarg[key]
+          return res
+     }
+     Function.ptototype.mybind =function(thisarg,...agr){
+           return (...next)=>{
+            this.call(thisarg,...agr,...next)
+           }
+     }
+     Promise.myres =function(value){
+        return new Promise((resolve,reject)=>{
+            resolve(value)
+        })
+     }
+          Promise.myrej =function(value){
+        return new Promise((resolve,reject)=>{
+            reject(value)
+        })
+     }
+          Promise.myall =function(value){
+        return new Promise((resolve,reject)=>{
+            let arr =[]
+              value.forEach((item,index)=>{
+                item.then(res=>{
+                    arr.push(res)
+                    if(index==value.length-1){
+                        resolve(arr)
+                    }
+                }).catch(err=>{
+                    reject(err)
+                })
+              })
+        })
+     }
+     function deepclone(value){
+        let obj={}
+               if(typeof value !='object'){
+                return value
+               }
+               else {
+                for(let index in value){
+                    if(value[index] instanceof Object){
+                           obj[index]={}
+                           obj[index]=deepclone(value[index])
+                    }
+                    else if(value[index] instanceof Array){
+                         obj[index] =[]
+                         obj[index] =deepclone(value[index])
+                    }
+                    else {
+                        obj[index]=value[index]
+                    }
+                }
+               }
+               return obj
+     }
+     function filter(value){
+          let arr =[]
+          value.forEach((item)=>{
+            if(!arr.includes(item)){
+                 arr.push(item)
+            }
+          })
+          return arr
+     }
+     function flat(arr){
+        let newarr =[]
+       return arr.reduce((acc,curr)=>{
+                  if(curr instanceof Array){
+                    newarr =newarr.concat(flat(curr))
+                  }
+                  else {
+                    newarr.push(curr)
+                  }
+                  return newarr
+        },[])         
+     }
+     function curr(fn){
+               let len =fn.length
+               return function curred(...arg){
+                if(arg.length>=len){
+                    return fn(...arg)
+                }
+                else {
+                  return (...next)=>{
+                    return curred(...arg,...next)
+                  }
+                }
+
+               }
+     }
+    </script>
+</body>
+</html>
