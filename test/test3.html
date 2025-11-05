@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+       function sort(arr){
+                 if(arr.length<=1){
+                    return [...arr]
+                 }
+                 else {
+                    let  index =Math.floor(arr.length/2)
+                    const target =arr[index]
+                    let left =[]
+                    let equal =[]
+                    let right =[]
+                    for(let item in arr){
+                        if(arr[item]>target){
+                            right.push(arr[item])
+                        }
+                        else if(arr[item]<target){
+                            left.push(arr[item])
+                        }
+                        else {
+                            equal.push(arr[item])
+                        }
+                    }
+                    return [...sort(left),...equal,...sort(right)]
+                 }
+       }
+       function deepclone(obj){
+        if(typeof obj !=='object' || obj ===null){
+            return obj
+        }
+        else {
+            const o={}
+            for (let index in obj){
+            if(obj[index] instanceof Object){
+                 o[index] ={}
+                 o[index]=deepclone(obj[index])
+            }
+            else if(obj[index] instanceof Array){
+                o[index] =[]
+                o[index]=deepclone(obj[index])
+            }
+            else {
+                o[index] =obj[index]
+            }
+        }
+        return o
+    }
+       }
+       function filert(arr){
+          let arrs =[]
+          for(let index of arr){
+            if(!arrs.includes(index)){
+                arrs.push(index)
+            }
+          }
+          return arrs
+       }
+       function flat(arr){
+          return  arr.reduce((acc,cur)=>{
+                  if(cur instanceof Array){
+                    acc =acc.concat(flat(cur))
+                  }
+                  else{
+                     acc.push(cur)
+                  }
+                  return acc
+           },[])
+       }
+    </script>
+</body>
+</html>
