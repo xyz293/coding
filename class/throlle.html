@@ -28,11 +28,13 @@
                },wait)
           }
           function jieliu (fn,wait){
-               let now =new Date().getTime()
-               let time1 =0
+              let time1 =0
+               return ()=>{
+                let now =new Date().getTime()
                if(now-time1>=wait){
                 fn()
                  time1 =now
+               }
                }
           }
         </script>

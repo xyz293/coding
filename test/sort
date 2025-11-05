@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+       function sort(arr){
+        if(arr.length<=1){
+          return arr
+        }
+        else {
+            const index =Math.floor(arr.length/2)
+            const target =arr[index]
+           let left =[]
+           let right= []
+           let equal =[]
+           for(let i of arr){
+            if(i<target){
+                left.push(i)
+            }
+            else if(i>target){
+                right.push(i)
+            }
+            else {
+                equal.push(i)
+            }
+           }
+           return [...sort(left),...equal,...sort(right)]
+        }
+       }
+       const arr =[2,3,4,9,8,7,5,1]
+       console.log(sort(arr))
+    </script>
+</body>
+</html>
