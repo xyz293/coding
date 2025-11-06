@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>请求队列+并发限制+取消重复请求</title>
+</head>
+<body>
+    <button onclick="sendRequest()">发送请求（可快速点多次）</button>
+    <button onclick="cancelAllRequest()">取消所有请求</button>
+    <script>
+        // 1. 取消令牌类（核心：控制单个请求取消）
+        class CancelToken {
+            constructor(executor) {
+                let resolveCancel;
+                this.promise = new Promise((resolve) => {
+                    resolveCancel = resolve;
+                });
+                // 存储取消触发函数
+                this.cancelFn = resolveCancel;
+                executor((msg = '请求已取消') => {
+                    resolveCancel(msg);
+                });
+            }
+        }
+
+        // 2. Axios 核心类（新增队列+并发限制）
+        class Axios {
+            constructor(config) {
+                this.config = { ...config };
+                this.inter = {
+                    request: { handler: [], use: (ful, rej) => this.inter.request.handler.push({ ful, rej }) },
+                    response: { handler: [], use: (ful, rej) => this.inter.response.handler.push({ ful, rej }) }
+                };
+                // 并发控制核心配置
+                this.concurrentLimit = config.concurrentLimit || 3; // 默认最多同时执行3个请求
+                this.runningCount = 0; // 当前正在执行的请求数
+                this.requestQueue = []; // 等待执行的请求队列
+            }
+
+            // 发起请求（核心入口）
+            request(config) {
+                const finalConfig = { ...this.config, ...config };
+                return new Promise((resolve, reject) => {
+                    // 包装请求任务（包含执行逻辑和回调）
+                    const task = () => {
+                        let promiseChain = Promise.resolve(finalConfig);
+
+                        // 执行请求拦截器
+                        this.inter.request.handler.forEach(item => {
+                            promiseChain = promiseChain.then(item.ful, item.rej);
+                        });
+
+                        // 发起真实 XHR 请求
+                        promiseChain = promiseChain.then(config => {
+                            return new Promise((res, rej) => {
+                                try {
+                                    const xhr = new XMLHttpRequest();
+                                    const fullUrl = config.baseurl ? `${config.baseurl}${config.url}` : config.url;
+                                    xhr.open(config.method || 'GET', fullUrl);
+
+                                    // 超时配置
+                                    if (config.timeout) {
+                                        xhr.timeout = config.timeout;
+                                        xhr.ontimeout = () => rej(new Error(`超时 ${config.timeout}ms`));
+                                    }
+
+                                    // 取消请求监听
+                                    if (config.cancelToken) {
+                                        config.cancelToken.promise.then(msg => {
+                                            xhr.abort();
+                                            rej(new Error(msg));
+                                        });
+                                    }
+
+                                    // 响应处理
+                                    xhr.onload = () => {
+                                        try {
+                                            const response = {
+                                                data: xhr.responseText ? JSON.parse(xhr.responseText) : {},
+                                                status: xhr.status,
+                                                statusText: xhr.statusText
+                                            };
+                                            response.status >= 200 && response.status < 300 ? res(response) : rej(new Error(`状态码 ${response.status}`));
+                                        } catch (err) {
+                                            rej(new Error(`解析响应失败：${err.message}`));
+                                        }
+                                    };
+
+                                    // 网络错误
+                                    xhr.onerror = () => rej(new Error('网络请求失败'));
+
+                                    // 发送请求
+                                    if (config.method?.toUpperCase() === 'POST') {
+                                        xhr.setRequestHeader('Content-Type', 'application/json;charset=utf-8');
+                                        xhr.send(JSON.stringify(config.data || {}));
+                                    } else {
+                                        xhr.send();
+                                    }
+                                } catch (err) {
+                                    rej(err);
+                                }
+                            });
+                        });
+
+                        // 执行响应拦截器
+                        this.inter.response.handler.forEach(item => {
+                            promiseChain = promiseChain.then(item.ful, item.rej);
+                        });
+
+                        // 关联外层 Promise 回调
+                        promiseChain.then(resolve).catch(reject);
+
+                        // 请求完成后，执行下一个队列任务
+                        promiseChain.finally(() => {
+                            this.runningCount--;
+                            this.processQueue(); // 处理队列中的下一个请求
+                            // 从缓存中删除当前请求的取消令牌
+                            const key = `${finalConfig.method}${finalConfig.url}`;
+                            map.delete(key);
+                        });
+                    };
+
+                    // 生成请求唯一标识（用于去重）
+                    const key = `${finalConfig.method}${finalConfig.url}`;
+                    const cancelToken = new CancelToken(c => {
+                        cancelMap.set(key, c); // 存储每个请求的取消函数
+                    });
+                    finalConfig.cancelToken = cancelToken;
+
+                    // 重复请求处理：取消上一个未完成的相同请求
+                    if (map.has(key)) {
+                        cancelMap.get(key)('重复请求，取消上一个');
+                        map.delete(key);
+                    }
+                    map.set(key, cancelToken); // 缓存当前请求的取消令牌
+
+                    // 加入队列或立即执行
+                    this.requestQueue.push(task);
+                    this.processQueue();
+                });
+            }
+
+            // 处理队列：判断是否可以执行下一个请求
+            processQueue() {
+                if (this.runningCount < this.concurrentLimit && this.requestQueue.length > 0) {
+                    this.runningCount++;
+                    const nextTask = this.requestQueue.shift(); // 取出队列第一个任务
+                    nextTask(); // 执行任务
+                }
+            }
+
+            // 取消所有请求（清空队列+中断正在执行的请求）
+            cancelAll() {
+                // 取消正在执行的请求
+                cancelMap.forEach(cancelFn => cancelFn('全局取消所有请求'));
+                // 清空队列和缓存
+                this.requestQueue = [];
+                map.clear();
+                cancelMap.clear();
+                this.runningCount = 0;
+            }
+        }
+
+        // 全局缓存：存储请求的取消令牌和取消函数
+        const map = new Map(); // key: method+url, value: CancelToken 实例
+        const cancelMap = new Map(); // key: method+url, value: 取消函数
+
+        // 实例化 Axios（设置并发限制为2）
+        const myaxios = new Axios({
+            baseurl: 'http://121.37.19.240:8080',
+            timeout: 5000,
+            concurrentLimit: 2 // 最多同时执行2个请求，可自定义
+        });
+
+        // 注册拦截器
+        myaxios.inter.request.use(config => {
+            console.log('请求拦截器执行：', config.url);
+            return config;
+        }, err => Promise.reject(err));
+
+        myaxios.inter.response.use(res => {
+            console.log('响应拦截器执行：', res.data);
+            return res;
+        }, err => {
+            console.error('响应错误：', err.message);
+            return Promise.reject(err);
+        });
+
+        // 发送请求（快速点击会触发队列和去重）
+        const sendRequest = () => {
+            myaxios.request({
+                method: 'get',
+                url: '/carousel/list'
+            }).then(res => {
+                console.log('请求成功：', res.data);
+            }).catch(err => {
+                console.log('请求失败：', err.message);
+            });
+        };
+
+        // 取消所有请求
+        const cancelAllRequest = () => {
+            myaxios.cancelAll();
+            console.log('已取消所有请求和队列');
+        };
+    </script>
+</body>
+</html>
