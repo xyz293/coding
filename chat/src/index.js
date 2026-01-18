@@ -1,0 +1,1 @@
+//npm install dotenv openai @modelcontextprotocol/sdk chalk

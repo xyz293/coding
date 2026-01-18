@@ -7,7 +7,22 @@
 </head>
 <body>
     <h2>单例模式</h2>
+    <button id="btn">click me</button>
+    <div style="height: 200px;background-color: red;"></div>
     <script>
+        const btn =document.getElementById('btn');
+        btn.addEventListener('click',()=>{
+            const div =document.querySelector('div');
+            div.style.backgroundColor ='blue';
+        })
+        let a =100000
+        function add(){
+           while(a!=0){
+            console.log(a);
+            a--
+           }
+        }
+       add()
     </script>
 </body>
 </html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+      Promise.myresolve =function(val){
+         return new Promise((resolve)=>{
+            resolve(val)
+         })
+      }
+      Promise.myreject =function(val){
+        return new Promise((resolve,reject)=>{
+            reject(val)
+        })
+      }
+      Promise.myall =function(list){
+          return new Promise((resolve,reject)=>{
+            let ress =[]
+            let count =0
+            list.forEach((item)=>{
+                item.then(res=>{
+                     ress.push(res)
+                    count++
+                    if(count == list.length){
+                        resolve(ress)
+                    }
+                }).catch(err=>{
+                    reject(err)
+                })
+            })
+          })
+      }
+       Promise.myrace =function(list){
+        return new Promise((resolve,reject)=>{
+            list.forEach((item)=>{
+                item.then(res=>{
+                    resolve(res)
+                }).catch(err=>{
+                    reject(err)
+                })
+            })
+        })
+       }
+       Promise.myany =function(list){
+           return new Promise((resolve,reject)=>{
+            let count =0
+              let res =[]
+              list.forEach((item)=>{
+                item.then(res=>{
+                    resolve(res)
+                }).catch(err=>{
+                     res.push(err)
+                    count++
+                   if(count == list.length){
+                        reject(res)
+                   }
+                })
+              })
+           })
+       }
+       Promise.myallsettled = function(list){
+            return new Promise((resolve,reject)=>{
+              try{
+                  let count =0
+                  let res =[]
+                list.forEach((item)=>{
+                    item.then(res=>{
+                        res.push({status:'fulfilled',value:res})
+                    }).catch(err=>{
+                        res.push({status:'rejected',reason:err})
+                    }).finally(()=>{
+                            count++
+                            if(count == list.length){
+                                resolve(res)
+                            }
+                    })
+                })
+                resolve(res)
+              }
+              catch(err){
+                reject(err)
+              }
+            })
+       }
+       class EventBus{
+         event =new Map()
+        on(eventName,callback){
+           if(!this.event.has(eventName)){
+                this.event.set(eventName,[callback])
+           }
+           else {
+                this.event.get(eventName).push(callback)
+           }
+        }
+        emit(eventName,data){
+            if(this.event.has(eventName)){
+                 this.event.get(eventName).forEach((item)=>{
+                    item(data)
+                 })
+            }
+        }
+        off(eventName,callback){
+            if(!callback){
+                this.event.delete(eventName)
+            }
+            else if(this.event.has(eventName)){
+                this.event.set(eventName,this.event.get(eventName).filter((item)=>item!=callback))
+            }
+        }
+       }
+       function deepclone(obj){
+         if(typeof obj != 'object' || obj == null){
+            return obj
+         }
+         const newobj =Array.isArray(obj)?[]:{}
+         for(let key in obj){
+           if(Object.hasOwnProperty.call(obj,key)){
+                newobj[key] =deepclone(obj[key])
+           }
+         }
+           return newobj
+       }
+       console.log(deepclone({a:1,b:{c:2}}))
+       Array.prototype.myforeach =function(fn){
+             for(let i=0;i<this.length;i++){
+                fn(this[i],i)
+           }
+       }
+       Array.prototype.mymap =function(fn){
+        let res =[]
+        for(let i=0;i<this.length;i++){
+            res.push(fn(this[i],i))
+        }
+        return res
+       }
+       Array.prototype.myfillter =function(fn){
+        let res =[]
+        for(let i=0;i<this.length;i++){
+          if(fn(this[i])){
+            res.push(this[i])
+          }
+        }
+        return res
+       }
+       Array.prototype.myflat =function(){
+           let res =[]
+           for(let i=0;i<this.length;i++){
+            if(Array.isArray(this[i])){
+               res =res.concat(this[i].myflat())
+            }
+            else{
+                res.push(this[i])
+            }
+           }
+           return res
+       }
+       list=[1,2,3,4,5]
+       list1=[1,2,3,[4,5,6,[1,2,4,1]]]
+       list.myforeach((item,index)=>{
+        console.log(item,index)
+       })
+       console.log(list.mymap((item,index)=>{
+        return {
+                item:item*2,
+                index:index
+        }
+       }))
+         console.log(list.myfillter((item)=>{
+           return item!=3
+        }))
+       console.log(list1.myflat())
+      Function.prototype.mycall =function(thisarg,...args){
+            const key = Symbol()
+            thisarg[key] =this
+            thisarg[key](...args)
+            delete thisarg[key]
+      }
+      function get(a,b,c){
+        console.log(this.name)
+        console.log(a,b,c)
+      }
+      get.mycall({name:'json'},1,2,3)
+      let time =null
+      function fangdou(){
+        if(time){
+            clearTimeout(time)
+        }
+        time = setTimeout(()=>{
+            console.log('111')
+        },1000)
+      }
+      let time1 =0
+      function jieliu(fn){
+        if(time1<Date.now()){
+            time1 = Date.now() + 1000*60
+            fn()
+        }
+      }
+      function Param(url){
+       const data =url.split('#')[0].split('?')[1]
+       const obj ={}
+       if(data){
+       data.split('&').forEach((item)=>{
+        const key =decodeURIComponent(item.split('=')[0])
+        const value =decodeURIComponent(item.split('=')[1])
+        obj[key] =value
+       })
+       }
+       return obj
+      }
+      console.log(Param('https://www.xxx.com?name=张三&age=20&sex=&like=篮球&like=足球#hash=123'))
+      function phone(str){
+        if(str.length !=11){
+            return 
+        }
+        else {
+            return str.slice(0,3)+'****'+str.slice(-4)
+        }
+      }
+      console.log(phone('13800001234'))
+      function a (){
+        this.name ='json'
+      }
+      const b =new a()
+      function instacneof(l,r){
+        if(!l){
+            return false
+        }
+        while(l!=null){
+            if(l.__proto__==r.prototype){
+                return true
+            }
+            l = l.__proto__
+        }
+        return false
+      }
+      lista =[1,2,3]
+      console.log(instacneof(b,a))
+      function news (fn,...arg){
+        const obj={}
+        obj.__proto__ =fn.prototype
+        fn.apply(obj,arg)
+        return obj
+      }
+      news(a)
+      console.log(news(a).name)
+      function create(obj){
+         function F(){
+         }
+         F.prototype =obj
+         return new F()
+      }
+      const r =create({
+        name:'json',
+        age:20,
+        sex:'男'
+      })
+      console.log(r.name)
+    </script>
+</body>
+</html>
